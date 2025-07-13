@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão AABB</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Variáveis de cores - Inspiradas no Banco do Brasil e AABB */
+        :root {
+            --amarelo-bb: #fdcb58;
+            --amarelo-escuro: #ffb700;
+            --azul-bb: #1e3f66;
+            --azul-claro: #4d7cc3;
+            --branco: #ffffff;
+            --cinza-claro: #f5f5f5;
+            --cinza-medio: #e0e0e0;
+            --texto-escuro: #333333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--cinza-claro);
+            color: var(--texto-escuro);
+        }
+
+        /* Layout principal */
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Barra lateral */
+        .sidebar {
+            width: 250px;
+            background-color: var(--azul-bb);
+            color: var(--branco);
+            padding: 20px 0;
+            transition: all 0.3s;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        .sidebar-logo h2 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+        }
+
+        .menu-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--amarelo-bb);
+        }
+
+        .menu-item i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .menu-item span {
+            font-size: 15px;
+        }
+
+        .badge {
+            background-color: var(--amarelo-bb);
+            color: var(--azul-bb);
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: auto;
+        }
+
+        /* Conteúdo principal */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        /* Cabeçalho */
+        .header {
+            background-color: var(--branco);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .header h1 {
+            font-size: 22px;
+            color: var(--azul-bb);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .search-bar {
+            position: relative;
+            margin-right: 20px;
+        }
+
+        .search-bar input {
+            padding: 8px 15px 8px 35px;
+            border: 1px solid var(--cinza-medio);
+            border-radius: 20px;
+            width: 250px;
+            font-size: 14px;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user-profile img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--amarelo-bb);
+        }
+
+        .user-profile span {
+            margin-left: 10px;
+            font-weight: 500;
+        }
+
+        .notification-icon {
+            position: relative;
+            margin-right: 20px;
+            cursor: pointer;
+        }
+
+        .notification-icon i {
+            font-size: 20px;
+            color: var(--azul-bb);
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: #ff5252;
+            color: white;
+            font-size: 10px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Conteúdo do Dashboard */
+        .dashboard-content {
+            padding: 30px;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-dropdown {
+            display: flex;
+            align-items: center;
+        }
+
+        .filter-dropdown select {
+            padding: 8px 15px;
+            border: 1px solid var(--cinza-medio);
+            border-radius: 5px;
+            margin-left: 10px;
+            font-size: 14px;
+        }
+
+        /* Cards de estatísticas */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background-color: var(--branco);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card h3 {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: var(--azul-bb);
+        }
+
+        .stat-card .description {
+            font-size: 13px;
+            color: #777;
+        }
+
+        .stat-card .icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: var(--amarelo-bb);
+        }
+
+        .stat-card .chart {
+            margin-top: 15px;
+            height: 60px;
+            background: linear-gradient(to right, rgba(77, 124, 195, 0.2), rgba(77, 124, 195, 0.1));
+            border-radius: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card .chart::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60%;
+            background: linear-gradient(to right, var(--azul-claro), var(--azul-bb));
+            clip-path: polygon(0 100%, 10% 70%, 20% 85%, 30% 60%, 40% 70%, 50% 40%, 60% 50%, 70% 30%, 80% 45%, 90% 20%, 100% 40%, 100% 100%);
+        }
+
+        /* Seções de conteúdo */
+        .content-section {
+            background-color: var(--branco);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            font-size: 18px;
+            color: var(--azul-bb);
+        }
+
+        .section-header .view-all {
+            color: var(--azul-claro);
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        /* Tabela de eventos */
+        .events-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .events-table th {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--cinza-medio);
+            color: #777;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .events-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--cinza-medio);
+            font-size: 14px;
+        }
+
+        .events-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .events-table .event-name {
+            display: flex;
+            align-items: center;
+        }
+
+        .events-table .event-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background-color: var(--amarelo-bb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: var(--azul-bb);
+        }
+
+        .events-table .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status.active {
+            background-color: rgba(46, 204, 113, 0.1);
+            color: #2ecc71;
+        }
+
+        .status.pending {
+            background-color: rgba(241, 196, 15, 0.1);
+            color: #f1c40f;
+        }
+
+        .status.cancelled {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: #e74c3c;
+        }
+
+        /* Seção de espaços do clube */
+        .spaces-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .space-card {
+            background-color: var(--cinza-claro);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .space-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .space-card .space-image {
+            height: 120px;
+            background-color: var(--cinza-medio);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .space-card .space-info {
+            padding: 15px;
+        }
+
+        .space-card h3 {
+            font-size: 16px;
+            margin-bottom: 5px;
+            color: var(--azul-bb);
+        }
+
+        .space-card .space-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #777;
+        }
+
+        .space-card .availability {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .space-card .availability-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .space-card .available {
+            background-color: #2ecc71;
+        }
+
+        .space-card .occupied {
+            background-color: #e74c3c;
+        }
+
+        /* Responsividade */
+        @media (max-width: 1024px) {
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 70px;
+            }
+
+            .sidebar-logo h2,
+            .menu-item span,
+            .badge {
+                display: none;
+            }
+
+            .sidebar-logo {
+                justify-content: center;
+            }
+
+            .sidebar-logo img {
+                margin-right: 0;
+            }
+
+            .menu-item {
+                justify-content: center;
+            }
+
+            .menu-item i {
+                margin-right: 0;
+                font-size: 20px;
+            }
+
+            .main-content {
+                margin-left: 70px;
+            }
+
+            .search-bar input {
+                width: 180px;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .header-right {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .search-bar {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 15px;
+            }
+
+            .search-bar input {
+                width: 100%;
+            }
+
+            .dashboard-content {
+                padding: 15px;
+            }
+
+            .spaces-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Barra lateral -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <img src="https://via.placeholder.com/40/ffb700/ffffff?text=AABB" alt="Logo AABB">
+                <h2>AABB Gestão</h2>
+            </div>
+            <div class="sidebar-menu">
+                <div class="menu-item active">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-users"></i>
+                    <span>Sócios</span>
+                    <div class="badge">15</div>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Eventos</span>
+                    <div class="badge">3</div>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Espaços</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Financeiro</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Conteúdo principal -->
+        <div class="main-content">
+            <!-- Cabeçalho -->
+            <div class="header">
+                <h1>Dashboard Administrativo</h1>
+                <div class="header-right">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Pesquisar...">
+                    </div>
+                    <div class="notification-icon">
+                        <i class="fas fa-bell"></i>
+                        <div class="notification-badge">3</div>
+                    </div>
+                    <div class="user-profile">
+                        <img src="https://via.placeholder.com/35/4d7cc3/ffffff?text=A" alt="Avatar">
+                        <span>Admin</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conteúdo do Dashboard -->
+            <div class="dashboard-content">
+                <div class="filter-bar">
+                    <h2>Visão Geral</h2>
+                    <div class="filter-dropdown">
+                        <span>Período:</span>
+                        <select>
+                            <option>Último mês</option>
+                            <option>Última semana</option>
+                            <option>Hoje</option>
+                            <option>Personalizado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Cards de estatísticas -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <i class="fas fa-users icon"></i>
+                        <h3>Total de Sócios</h3>
+                        <div class="value">248</div>
+                        <div class="description">12 novos este mês</div>
+                        <div class="chart"></div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check icon"></i>
+                        <h3>Eventos Agendados</h3>
+                        <div class="value">15</div>
+                        <div class="description">5 para esta semana</div>
+                        <div class="chart"></div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-money-bill-wave icon"></i>
+                        <h3>Receita Mensal</h3>
+                        <div class="value">R$ 42.580</div>
+                        <div class="description">+8% em relação ao mês anterior</div>
+                        <div class="chart"></div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-swimming-pool icon"></i>
+                        <h3>Reservas de Espaços</h3>
+                        <div class="value">78</div>
+                        <div class="description">23 para o final de semana</div>
+                        <div class="chart"></div>
+                    </div>
+                </div>
+
+                <!-- Seção de eventos -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2>Próximos Eventos</h2>
+                        <div class="view-all">Ver todos <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th>Evento</th>
+                                <th>Data</th>
+                                <th>Local</th>
+                                <th>Participantes</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="event-name">
+                                        <div class="event-icon"><i class="fas fa-trophy"></i></div>
+                                        <div>
+                                            <div>Torneio de Tênis</div>
+                                            <div style="font-size: 12px; color: #777;">Competição Aberta</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>15/07/2025</td>
+                                <td>Quadras de Tênis</td>
+                                <td>32/40</td>
+                                <td><span class="status active">Confirmado</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="event-name">
+                                        <div class="event-icon"><i class="fas fa-music"></i></div>
+                                        <div>
+                                            <div>Noite de Música</div>
+                                            <div style="font-size: 12px; color: #777;">Show ao Vivo</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>20/07/2025</td>
+                                <td>Salão Principal</td>
+                                <td>85/120</td>
+                                <td><span class="status pending">Preparação</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="event-name">
+                                        <div class="event-icon"><i class="fas fa-utensils"></i></div>
+                                        <div>
+                                            <div>Feijoada Tradicional</div>
+                                            <div style="font-size: 12px; color: #777;">Almoço Mensal</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>22/07/2025</td>
+                                <td>Restaurante</td>
+                                <td>45/60</td>
+                                <td><span class="status active">Confirmado</span></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="event-name">
+                                        <div class="event-icon"><i class="fas fa-swimming-pool"></i></div>
+                                        <div>
+                                            <div>Aula de Hidroginástica</div>
+                                            <div style="font-size: 12px; color: #777;">Terceira Idade</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>18/07/2025</td>
+                                <td>Piscina Coberta</td>
+                                <td>12/15</td>
+                                <td><span class="status cancelled">Cancelado</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Seção de espaços do clube -->
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2>Espaços do Clube</h2>
+                        <div class="view-all">Ver todos <i class="fas fa-arrow-right"></i></div>
+                    </div>
+                    <div class="spaces-grid">
+                        <div class="space-card">
+                            <div class="space-image" style="background-image: url('https://via.placeholder.com/200/4d7cc3/ffffff?text=Quadra')"></div>
+                            <div class="space-info">
+                                <h3>Quadra de Tênis 1</h3>
+                                <div class="space-details">
+                                    <span>Capacidade: 4</span>
+                                    <span>Área Externa</span>
+                                </div>
+                                <div class="availability">
+                                    <div class="availability-indicator available"></div>
+                                    <span>Disponível</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-card">
+                            <div class="space-image" style="background-image: url('https://via.placeholder.com/200/4d7cc3/ffffff?text=Salão')"></div>
+                            <div class="space-info">
+                                <h3>Salão de Festas</h3>
+                                <div class="space-details">
+                                    <span>Capacidade: 150</span>
+                                    <span>Área Interna</span>
+                                </div>
+                                <div class="availability">
+                                    <div class="availability-indicator occupied"></div>
+                                    <span>Reservado</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-card">
+                            <div class="space-image" style="background-image: url('https://via.placeholder.com/200/4d7cc3/ffffff?text=Piscina')"></div>
+                            <div class="space-info">
+                                <h3>Piscina Olímpica</h3>
+                                <div class="space-details">
+                                    <span>Capacidade: 30</span>
+                                    <span>Área Externa</span>
+                                </div>
+                                <div class="availability">
+                                    <div class="availability-indicator available"></div>
+                                    <span>Disponível</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="space-card">
+                            <div class="space-image" style="background-image: url('https://via.placeholder.com/200/4d7cc3/ffffff?text=Churrasqueira')"></div>
+                            <div class="space-info">
+                                <h3>Churrasqueira 2</h3>
+                                <div class="space-details">
+                                    <span>Capacidade: 20</span>
+                                    <span>Área Externa</span>
+                                </div>
+                                <div class="availability">
+                                    <div class="availability-indicator occupied"></div>
+                                    <span>Reservado</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Script simples para interatividade básica
+        document.addEventListener('DOMContentLoaded', function() {
+            // Alternar itens de menu
+            const menuItems = document.querySelectorAll('.menu-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    menuItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
