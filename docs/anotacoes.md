@@ -1,0 +1,17 @@
+supabase: ri.ltons@gmail.com
+
+Organization: aabb
+
+Project name: aabb
+
+Database Password: upFxwjyuYN8xM7Sa
+
+Project ID: dlqohrzxvcwmyhykctbo
+
+URL: https://dlqohrzxvcwmyhykctbo.supabase.co
+
+anon public: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRscW9ocnp4dmN3bXloeWtjdGJvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTIxOTE3MTEsImV4cCI6MjA2Nzc2NzcxMX0.7NZVCWSXuaidVuO_42JKPlXNkAleduXmqan1pEZVKak
+
+service_role secret: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRscW9ocnp4dmN3bXloeWtjdGJvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MjE5MTcxMSwiZXhwIjoyMDY3NzY3NzExfQ.CK64AQYVBtKS44uZPAraEIvon7z5cPtFZ2vbTCHQe60
+
+token: sbp_9b0015a4bead5f2e775f41d3061ca3575e635b26
